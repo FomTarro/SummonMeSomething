@@ -55,6 +55,7 @@ public class PlayerBehavior : MonoBehaviour {
             this.transform.rotation = Quaternion.AngleAxis(aim_angle, Vector3.up);
 
            movement = new Vector3(x, 0.0f, y);
+            movement = Vector3.ClampMagnitude(movement, 1.0f);
            rb.velocity = speed*movement;
 
         }
