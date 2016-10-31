@@ -19,6 +19,8 @@ public class IngredientsRoster : MonoBehaviour {
         }
     }
 
+
+    [Header("Item Roster")]
     [SerializeField]
     private List<IngredientAdjectiveEntry> rosterToShuffle;
 
@@ -31,6 +33,7 @@ public class IngredientsRoster : MonoBehaviour {
 
     [SerializeField]
     private List<List<Ingredient>> inThePot = new List<List<Ingredient>>();
+    [Header("UI Hookups")]
     [SerializeField]
     private List<GameObject> P1_Locations = new List<GameObject>();
     [SerializeField]
@@ -77,6 +80,12 @@ public class IngredientsRoster : MonoBehaviour {
     private string demand = "";
 
 
+    private bool inIntro = false;
+
+    private int skipPresses = 0;
+
+    private float skipTime = 0f;
+
     // Use this for initialization
     void Start () {
         backPanel.alpha = 0.0f;
@@ -84,7 +93,24 @@ public class IngredientsRoster : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+        if (inIntro)
+        {
+            if(Input.GetButtonDown("P0_AButton") || Input.GetButtonDown("P0_AButton"))
+            {
+                if(skipTime < 0.5f)
+                {
+                    skipPresses++;
+                }
+                skipTime = 0;
+            }
+            if (skipPresses > 6)
+            {
+                inIntro = false;
+                CheckSkipIntro();
+            }
+
+            skipTime += Time.deltaTime;
+        }
 	}
 
     public void startGame()
@@ -159,6 +185,7 @@ public class IngredientsRoster : MonoBehaviour {
 
     public IEnumerator Tutorial()
     {
+        inIntro = true;
         textField.color = Color.black;
         StartCoroutine(FadeTo(backPanel, 1f, 0.5f));
         string tutorialText = "Good evening, witches-in-training!\nTonight's exam is that of the Summoner's Ritual!";
@@ -182,14 +209,41 @@ public class IngredientsRoster : MonoBehaviour {
         tutorialText = "I'll tell you how your summon stacks up,\nbut I'll tell you nothing about which\nreagents caused which trait.";
         yield return StartCoroutine(TypeText(tutorialText, textField, textVoice));
         yield return new WaitForSeconds(0.25f);
-        tutorialText = "\nSo, let's get started, shall we?";
+
+        // Here's what to delegate out to a seperate coroutine
+        yield return StartCoroutine(EndOfIntro());
+    }
+
+    private IEnumerator EndOfIntro()
+    {
+        teacher.sprite = thinking;
+        string tutorialText = "\nLet's get started then, shall we?";
+        yield return StartCoroutine(TypeText(tutorialText, textField, textVoice));
         yield return new WaitForSeconds(0.25f);
-        StartCoroutine(Camera.main.GetComponent<CameraLerp>().posLerp(new Vector3(0, 23, -45), 30f, 5f));
+        StartCoroutine(Camera.main.GetComponent<CameraLerp>().posLerp(new Vector3(0, 35, -40), 45f, 5f));
         startGate.SetActive(false);
         StartCoroutine(FadeTo(gameplayUI, 1.0f, 0.5f));
         foreach (Spawner s in FindObjectsOfType<Spawner>())
             s.enabled = true;
         yield return StartCoroutine(GenerateDemand(1, 0));
+    }
+
+    private IEnumerator SkipIntro()
+    {
+        textLaugh.Stop();
+        textVoice.Stop();
+        yield return new WaitForSeconds(0.25f);
+        teacher.sprite = angry;
+        string tutorialText = "\n...Oh? Think you already know how this works?";
+        yield return StartCoroutine(TypeText(tutorialText, textField, textVoice));
+        yield return new WaitForSeconds(0.25f);
+        yield return StartCoroutine(EndOfIntro());
+    }
+
+    private void CheckSkipIntro()
+    {
+        StopAllCoroutines();
+        StartCoroutine(SkipIntro());
     }
 
     public void testOutcome()
@@ -204,7 +258,12 @@ public class IngredientsRoster : MonoBehaviour {
         yield return StartCoroutine(TypeText("Well summoned by all, but there can be only one winner!", textField, textVoice));
         yield return StartCoroutine(TypeText("Thanks for playing this Global Game Jam 2016 entry!\nArt by Dillon DeSimone and John Guerra\nCode by Tom Farro", textField, textVoice));
         yield return new WaitForSeconds(10.0f);
-        Application.LoadLevel(0);
+        Reset();
+    }
+
+    public void Reset()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 
     public IEnumerator Outcome(List<Ingredient> ingredients, int playerIndex)
@@ -285,8 +344,6 @@ public class IngredientsRoster : MonoBehaviour {
             shuffledBad.Add(randomIngredient);
             badClone.Remove(randomIngredient);
         }
-
-
 
 
         Adjective currentIngredientDescriptor;
@@ -398,7 +455,7 @@ public class IngredientsRoster : MonoBehaviour {
             yield return new WaitForSeconds(0.5f);
             int likes = Mathf.Clamp((round), 1, 2);
             int dislikes = Mathf.Clamp((round / 3), 0, 1);
-            if (scoreLists[0].text.Equals("10") || scoreLists[1].text.Equals("10"))
+            if (scoreLists[0].text.Equals(winScore.ToString()) || scoreLists[1].text.Equals(winScore.ToString()))
             {
                 StartCoroutine(Winner());
             }
@@ -530,9 +587,6 @@ public class IngredientsRoster : MonoBehaviour {
 
         bool voiced = (voice != null);
         float basePitch = 1.0f;
-
-        if (voiced)
-            basePitch = voice.pitch;
 
         string toFill = "";
         char[] letterArray = toParse.ToCharArray();

@@ -20,10 +20,17 @@ public class Item : MonoBehaviour {
 
     public bool pickedUp = false;
 
+    int rotationSpeed = 0;
 
 	// Use this for initialization
 	void Start () {
-	
+        rotationSpeed = Random.Range(85, 103);
+        foreach(Transform t in transform)
+        {
+            t.gameObject.AddComponent<ItemBob>();
+            t.GetComponent<ItemBob>().amplitude = 0.5f;
+            t.GetComponent<ItemBob>().speed = Random.Range(1f, 2f);
+        }
 	}
 
     void Update()
@@ -31,8 +38,11 @@ public class Item : MonoBehaviour {
         if (!pickedUp)
         {
             float z = transform.rotation.eulerAngles.z + Time.deltaTime;
-            transform.Rotate(new Vector3(0, (Time.deltaTime) * 100, 0));
+            transform.Rotate(new Vector3(0, (Time.deltaTime) * rotationSpeed, 0));
+
         }
+        if(GetComponentInChildren<ItemBob>() != null)
+            GetComponentInChildren<ItemBob>().enabled = !pickedUp;
     }
 	
 }

@@ -17,8 +17,8 @@ public class GGJLoad : MonoBehaviour {
     {
         yield return new WaitForSeconds(2.0f);
         FindObjectOfType<IngredientsRoster>().enabled = true;
+        yield return StartCoroutine(FadeTo(this.GetComponent<CanvasGroup>(), 0f, 1.0f));
         FindObjectOfType<StartButton>().enabled = true;
-        yield return StartCoroutine(FadeTo(this.GetComponent<CanvasGroup>(), 0f, 0.5f));
         this.gameObject.SetActive(false);
     }
 

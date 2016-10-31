@@ -18,7 +18,7 @@ public class CauldronArea : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.GetComponent<Item>() != null)
+        if (other.gameObject.GetComponent<Item>() != null)
         {
             Item itemInThePot = other.gameObject.GetComponent<Item>();
             Debug.Log(itemInThePot.IngredientType.ToString());

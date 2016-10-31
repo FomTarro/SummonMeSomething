@@ -3,11 +3,11 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class FloatingBob : MonoBehaviour {
-    private float y0;
+    public float y0;
     [SerializeField]
-    private float speed;
+    public float speed;
     [SerializeField]
-    private float amplitude;
+    public float amplitude;
 
 
 	// Use this for initialization

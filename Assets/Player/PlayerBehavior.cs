@@ -107,7 +107,7 @@ public class PlayerBehavior : MonoBehaviour {
             StartCoroutine(SetHeldItem(null));
             itemRB.isKinematic = false;
 
-            Debug.Log(100 * transform.forward);
+            //Debug.Log(100 * transform.forward);
             itemRB.velocity = (15 * (transform.right + 2.5f*transform.up) + speed * movement);
         }
     }
